@@ -17,14 +17,14 @@ class Player(GameSprite):
         keys_pressed = key.get_pressed()
         if keys_pressed[K_w] and self.rect.y > 5:
             self.rect.y -= self.speed
-        if keys_pressed[K_s] and self.rect.y < 620:
+        if keys_pressed[K_s] and self.rect.y < 395:
             self.rect.y += self.speed
             
     def update2(self):
         keys_pressed = key.get_pressed()
-        if keys_pressed[K_LEFT] and self.rect.y > 5:
+        if keys_pressed[K_UP] and self.rect.y > 5:
             self.rect.y -= self.speed
-        if keys_pressed[K_RIGHT] and self.rect.y< 620:
+        if keys_pressed[K_DOWN] and self.rect.y< 395:
             self.rect.y += self.speed
     
 # окно
@@ -40,9 +40,20 @@ window.fill(back)
 
 background = transform.scale(image.load("поле.jpg"), (700,500)) 
 
+win_height=500
+
+speed_x = 3
+speed_y = 3
+
+font.init()
+font= font.Font(None, 35)
+
+lose1 = font.render("Player 1 lost!", True, (180, 0, 0))
+lose2 = font.render("Player 2 lost!", True, (180, 0, 0))
+
 # персонажи
 rack1 = Player('ракетка.jpg', 5, 400, 80, 100, 4)
-rack2 = Player('ракетка.jpg', 400, 400, 80, 100, 4)
+rack2 = Player('ракетка.jpg', 615, 400, 80, 100, 4)
 bal= GameSprite('мяч.jpg', 1, 25, 50, 50, 4)
 
 # цикл                   
@@ -50,18 +61,39 @@ while run:
     for e in event.get():   
         if e.type == QUIT:
             run = False
-        if not finish:
-            window.blit(background, (0,0))
+    
+    if not finish:
+        window.blit(background, (0,0))
             
-            rack1.update1()
-            rack2.update2()      
-            bal.update()
-    
-            rack1.reset()
-            rack2.reset()
-            bal.reset()
-           
+        rack1.update1()
+        rack2.update2()      
+        # bal.update()
 
+        rack1.reset()
+        rack2.reset()
+        bal.reset()
     
+        
+        bal.rect.x += speed_x
+        bal.rect.y += speed_y
+        
+        if  bal.rect.y > win_height-50 or bal.rect.y < 0:
+            speed_y *= -1
+
+        if sprite.collide_rect(rack1, bal) or sprite.collide_rect(rack2, bal):
+            speed_x *= -1
+            speed_y *= 1
+
+        # проигрыш
+        if  bal.rect.x < 0:
+            finish = True
+            window.blit(lose1, (250, 350))
+            # run=True
+
+        if  bal.rect.x > 700:
+            finish = True
+            window.blit(lose2, (250, 350))
+            # run=True
+            
     display.update()     
     clock.tick(FPS)
